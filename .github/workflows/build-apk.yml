@@ -19,15 +19,6 @@ jobs:
         node-version: '20'
         cache: 'npm'
     
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build web app
-      run: npm run build
-    
-    - name: Sync Capacitor
-      run: npx cap sync android
-    
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
@@ -37,13 +28,25 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build web app
+      run: npm run build
+    
+    - name: Copy web assets to Android
+      run: |
+        mkdir -p android/app/src/main/assets/public
+        cp -r dist/* android/app/src/main/assets/public/
+        cp capacitor.config.json android/app/src/main/assets/
+    
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
     
     - name: Build Debug APK
       run: |
         cd android
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug --no-daemon
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
