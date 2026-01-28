@@ -31,28 +31,29 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
+    - name: Install Capacitor CLI
+      run: npm install -g @capacitor/cli
+    
     - name: Build web app
       run: npm run build
     
-    - name: Copy web assets to Android
+    - name: Remove old Android folder and recreate
       run: |
-        mkdir -p android/app/src/main/assets/public
-        cp -r dist/* android/app/src/main/assets/public/
-        cp capacitor.config.json android/app/src/main/assets/
+        rm -rf android
+        npx cap add android
     
-    - name: Grant execute permission for gradlew
-      run: chmod +x android/gradlew
+    - name: Sync Capacitor
+      run: npx cap sync android
     
     - name: Build Debug APK
       run: |
         cd android
-        ./gradlew assembleDebug --no-daemon --stacktrace
+        chmod +x gradlew
+        ./gradlew assembleDebug --no-daemon
     
-    - name: Upload APK artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: RentaCar-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
-
-# Trigger build v2
