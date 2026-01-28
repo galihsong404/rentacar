@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
         cache: 'npm'
     
     - name: Setup Java
@@ -31,16 +31,11 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Install Capacitor CLI
-      run: npm install -g @capacitor/cli
-    
     - name: Build web app
       run: npm run build
     
-    - name: Remove old Android folder and recreate
-      run: |
-        rm -rf android
-        npx cap add android
+    - name: Add Android platform
+      run: npx cap add android
     
     - name: Sync Capacitor
       run: npx cap sync android
