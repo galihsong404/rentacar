@@ -1,0 +1,24 @@
+{
+    "name": "RentaCar - Marketplace Rental Mobil",
+    "short_name": "RentaCar",
+    "description": "Rental mobil terbaik dengan pilihan lengkap dan harga terjangkau",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f23",
+    "theme_color": "#6366f1",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ],
+    "categories": [
+        "business",
+        "lifestyle"
+    ],
+    "lang": "id",
+    "dir": "ltr"
+}
