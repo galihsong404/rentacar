@@ -43,15 +43,53 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
     
-    - name: Build Debug APK
+    - name: Generate Keystore
+      run: |
+        keytool -genkeypair -v -storetype PKCS12 \
+          -keystore android/app/rentacar.keystore \
+          -alias rentacar \
+          -keyalg RSA \
+          -keysize 2048 \
+          -validity 10000 \
+          -storepass ${{ secrets.KEYSTORE_PASSWORD || 'RentaCar2024!' }} \
+          -keypass ${{ secrets.KEY_PASSWORD || 'RentaCar2024!' }} \
+          -dname "CN=RentaCar, OU=Mobile, O=RentaCar, L=Jakarta, ST=DKI Jakarta, C=ID"
+    
+    - name: Create signing config
+      run: |
+        cat >> android/app/build.gradle << 'EOF'
+        
+        android.signingConfigs {
+            release {
+                storeFile file("rentacar.keystore")
+                storePassword System.getenv("KEYSTORE_PASSWORD") ?: "RentaCar2024!"
+                keyAlias "rentacar"
+                keyPassword System.getenv("KEY_PASSWORD") ?: "RentaCar2024!"
+            }
+        }
+        android.buildTypes.release.signingConfig android.signingConfigs.release
+        EOF
+    
+    - name: Build Release APK
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'RentaCar2024!' }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'RentaCar2024!' }}
       run: |
         cd android
         chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleRelease --no-daemon
     
-    - name: Upload APK
+    - name: Upload Release APK
       uses: actions/upload-artifact@v4
       with:
-        name: RentaCar-APK
+        name: RentaCar-Release-APK
+        path: android/app/build/outputs/apk/release/app-release.apk
+        retention-days: 30
+    
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: RentaCar-Debug-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
+        if-no-files-found: ignore
